@@ -1,0 +1,85 @@
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class UserDataApp {
+
+    public static void main(String[] args) {
+        try {
+            processInputData("Ivanov Ivan Ivanovich 01.01.1990 1234567890 m");
+        } catch (AppException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void processInputData(String inputData) throws AppException {
+        String[] data = inputData.split(" ");
+
+        // Проверяем количество данных
+        if (data.length != 6) {
+            throw new AppException("Неверное количество данных");
+        }
+
+        // Извлекаем данные
+        String lastName = data[0];
+        String firstName = data[1];
+        String middleName = data[2];
+        String birthDateStr = data[3];
+        String phoneNumberStr = data[4];
+        String genderStr = data[5];
+
+        // Проверяем форматы данных
+        if (!isValidDateFormat(birthDateStr)) {
+            throw new AppException("Некорректный формат даты рождения");
+        }
+        if (!isValidPhoneNumberFormat(phoneNumberStr)) {
+            throw new AppException("Некорректный формат номера телефона");
+        }
+        if (!isValidGenderFormat(genderStr)) {
+            throw new AppException("Некорректный формат пола");
+        }
+
+        // Создаем строку данных для записи в файл
+        String userDataStr = lastName + " " + firstName + " " + middleName + " " +
+                birthDateStr + " " + phoneNumberStr + " " + genderStr;
+
+        // Записываем данные в файл
+        try {
+            writeToFile(lastName, userDataStr);
+        } catch (IOException e) {
+            throw new AppException("Ошибка записи в файл", e);
+        }
+    }
+
+    public static boolean isValidDateFormat(String dateString) {
+        // Проверяем формат даты (dd.mm.yyyy)
+        return dateString.matches("^[0-3][0-9]\\.[0-1][0-9]\\.\\d{4}$");
+    }
+
+    public static boolean isValidPhoneNumberFormat(String phoneNumberString) {
+        // Проверяем формат номера телефона (цифры без форматирования)
+        return phoneNumberString.matches("^\\d+$");
+    }
+
+    public static boolean isValidGenderFormat(String genderString) {
+        // Проверяем формат пола (f либо m)
+        return genderString.matches("^[fm]$");
+    }
+
+    public static void writeToFile(String lastName, String userDataStr) throws IOException {
+        FileWriter fileWriter = new FileWriter(lastName + ".txt", true);
+        fileWriter.write(userDataStr + "\n");
+        fileWriter.close();
+    }
+
+}
+
+class AppException extends Exception {
+    public AppException(String message) {
+        super(message);
+    }
+
+    public AppException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
